@@ -1,0 +1,47 @@
+version: "3.7"
+services:
+    app:
+        build:
+            args:
+                user: trirahaditya
+                uid: 1000
+            context: ./
+            dockerfile: Dockerfile
+        image: laravel-app
+        restart: unless-stopped
+        working_dir: /var/www/
+        volumes:
+            - ./:/var/www
+        ports:
+            - 80:80
+        environment:
+            - PORT=80
+        networks:
+            - pplnetwork
+        depends_on:
+            - db
+    db:
+        image: mysql:5.7
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: akarkuadratapi
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_PASSWORD: root
+            MYSQL_USER: trirahaditya
+        ports:
+            - 3307:3306
+        networks:
+            - pplnetwork
+    phpmyadmin:
+        image: phpmyadmin:latest
+        restart: unless-stopped
+        ports:
+            - 9002:80
+        environment:
+            - PMA_ARBITRARY=1
+        networks:
+            - pplnetwork
+
+networks:
+    pplnetwork:
+        driver: bridge
