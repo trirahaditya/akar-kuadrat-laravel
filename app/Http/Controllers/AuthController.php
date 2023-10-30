@@ -50,6 +50,7 @@ class AuthController extends Controller
     public function logout()
     {
         auth()->logout();
+        session()->forget('inputNumber');
         return redirect()->route('login');
     }
 }

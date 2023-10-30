@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\History;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 class SquareRootController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $history = History::orderBy('created_at', 'desc')->get();
+        $history = History::orderBy('created_at', 'desc')->paginate(10);
         $result = null; // Initialize $result
         $executionTime = null; // Initialize $executionTime
 
@@ -22,7 +23,7 @@ class SquareRootController extends Controller
     {
         $inputNumber = $request->input('number');
         $method = $request->input('method');
-        $maxLength = 6;
+        $maxLength = 10;
         $startTime = microtime(true);
         $result = null; // Inisialisasi $result
         $executionTime = null; // Inisialisasi $executionTime
@@ -59,6 +60,53 @@ class SquareRootController extends Controller
 
         $history->save();
 
+        $request->session()->put('inputNumber', $inputNumber);
+
         return redirect()->route('square_root.index', ['result' => $result, 'executionTime' => $executionTime])->with('result', $result)->with('success', 'Perhitungan berhasil disimpan.');
+    }
+
+    public function sortedHistory(Request $request)
+    {
+        $query = History::query();
+
+        // Menangkap nilai sort_order dari permintaan
+        $sortOrder = $request->input('sort_order');
+
+        if ($sortOrder === 'asc') {
+            $query->orderBy('execution_time', 'asc');
+        } elseif ($sortOrder === 'desc') {
+            $query->orderBy('execution_time', 'desc');
+        }
+
+        $history = $query->paginate(10);
+
+        $rekapData = History::select('input_number', DB::raw('count(*) as total_respons'))
+        ->groupBy('input_number')
+        ->get();
+
+        return view('sorted_history', compact('history', 'rekapData'));
+    }
+
+    public function refreshRekapitulasi()
+    {
+        $rekapData = History::select('input_number', DB::raw('count(*) as total_respons'))
+        ->groupBy('input_number')
+        ->get();
+
+        return response()->json($rekapData);
+    }
+
+    public function statistics()
+    {
+        // Mengambil semua data history
+        $history = History::all();
+
+        // Menghitung waktu pemrosesan tercepat, terlama, dan rata-rata
+        $fastestTime = $history->min('execution_time');
+        $slowestTime = $history->max('execution_time');
+        $averageTime = $history->avg('execution_time');
+
+        // Membuat tampilan dan memasukkan data ke dalamnya
+        return view('statistics', compact('fastestTime', 'slowestTime', 'averageTime'));
     }
 }

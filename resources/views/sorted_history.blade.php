@@ -6,7 +6,7 @@
     <title>Akar Kuadrat Bilangan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-</head> 
+</head>
 <body>
     <div class="container mt-5">
         <!-- Bagian Offcanvas -->
@@ -20,7 +20,6 @@
                 <ul class="list-group">
                     <li class="list-group-item"><a href="{{ route('square_root.index') }}">Dashboard</a></li>
                     <li class="list-group-item"><a href="{{ route('square_root.history') }}">History</a></li>
-                    <li class="list-group-item"><a href="{{ route('square_root.statistics') }}">Statistik Data</a></li>
                     <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li> <!-- Tambahkan ini -->
                 </ul>
             </div>
@@ -33,57 +32,18 @@
             </button>
             <h1>Akar Kuadrat Bilangan</h1>
         </div>
-        
-        @if(session('error'))
-        <div class="alert alert-danger mt-3">
-            <i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}
-        </div>
-        @endif
-        
-        <form method="POST" action="{{ route('square_root.calculate') }}" class="mt-3" onsubmit="return validateForm();">
-            @csrf
-            <div class="row">
-                <div class="mb-3">
-                    <label for="number" class="form-label">Masukan Bilangan:</label>
-                    <input type="text" name="number" id="number" class="form-control" required value="{{ session('inputNumber') }}">
-                </div>
-            </div>
-            <div class="d-grid gap-2 d-md-block">
-                <button type="submit" name="method" value="API Service" class="btn btn-primary btn-block">API Service</button>
-                <button type="submit" name="method" value="PL/SQL" class="btn btn-primary btn-block">PL/SQL</button>
+
+        <form method="get" action="{{ route('square_root.sorted_history') }}">
+            <div class="mb-3">
+                <select class="form-select" name="sort_order" aria-label="Sort Order">
+                    <option value="asc" {{ request('sort_order') === 'asc' ? 'selected' : '' }}>Ascending</option>
+                    <option value="desc" {{ request('sort_order') === 'desc' ? 'selected' : '' }}>Descending</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Filter</button>
             </div>
         </form>
 
-        <div id="result" class="mt-3 text-center">
-            @if(session('result'))
-                <p><strong style="font-size: 24px;">Hasil Perhitungan:</strong></p>
-                <div class="alert alert-success" style="font-size: 24px;">
-                    <strong>{{ session('result') }}</strong>
-                </div>
-                @if(session('executionTime'))
-                    <p><strong>Waktu Eksekusi:</strong> {{ session('executionTime') }} detik</p>
-                @endif
-            @endif
-        </div>
-        
-        <script>
-            function validateForm() {
-                var inputNumber = document.getElementById('number').value;
-                var errorAlert = document.getElementById('error-alert');
-                var zeroAlert = document.getElementById('zero-alert');
-        
-                if (parseFloat(inputNumber) <= 0) {
-                    zeroAlert.style.display = 'block'; // Tampilkan peringatan jika input <= 0
-                    errorAlert.style.display = 'none'; // Sembunyikan pesan kesalahan sebelumnya
-                    return false; // Mencegah pengiriman formulir jika input <= 0
-                } else {
-                    zeroAlert.style.display = 'none'; // Sembunyikan peringatan jika input > 0
-                }
-        
-                return true; // Lanjutkan dengan pengiriman formulir jika input valid
-            }
-        </script>
-
+        <!-- History Table -->
         <h2 class="mt-4">History</h2>        
         <table class="table mt-4">
             <thead>
@@ -109,7 +69,7 @@
                 @endforeach
             </tbody>
         </table>
-        
+
         <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-center">
                 <!-- Tombol "Previous" -->
@@ -147,8 +107,59 @@
                     </li>
                 @endif
             </ul>
-        </nav>        
+        </nav>
+        <br>
+
+        <!-- Rekapitulasi Table -->
+        <h2 class="mt-4">Rekapitulasi Data</h2>
+        <button type="button" class="btn btn-primary" onclick="refreshRekapitulasi()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th>Angka Input</th>
+                    <th>Total Respons</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($rekapData as $rekap)
+                <tr>
+                    <td>{{ $rekap->input_number }}</td>
+                    <td>{{ $rekap->total_respons }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
+    <script>
+        function refreshRekapitulasi() {
+            fetch('{{ route('square_root.refreshRekapitulasi') }}') // Ganti dengan rute yang sesuai
+                .then(response => response.json()) // Menangani respons sebagai JSON
+                .then(data => {
+                    // Memperbarui tabel rekapitulasi dengan data yang baru
+                    var rekapitulasiTable = document.getElementById('rekapitulasiTable');
+                    var tbody = rekapitulasiTable.querySelector('tbody');
+                    tbody.innerHTML = ''; // Mengosongkan isi tabel
+
+                    // Memasukkan data yang baru ke dalam tabel
+                    data.forEach(item => {
+                        var row = document.createElement('tr');
+                        var inputNumberCell = document.createElement('td');
+                        inputNumberCell.textContent = item.input_number;
+                        var totalResponsCell = document.createElement('td');
+                        totalResponsCell.textContent = item.total_respons;
+
+                        row.appendChild(inputNumberCell);
+                        row.appendChild(totalResponsCell);
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Terjadi kesalahan saat memuat data rekapitulasi: ', error);
+                });
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

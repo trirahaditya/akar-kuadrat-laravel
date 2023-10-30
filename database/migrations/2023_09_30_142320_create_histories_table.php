@@ -10,7 +10,7 @@ class CreateHistoriesTable extends Migration
     {
         Schema::create('histories', function (Blueprint $table) {
             $table->id();
-            $table->double('input_number');
+            $table->bigInteger('input_number');
             $table->double('square_root')->nullable();
             $table->string('method');
             $table->double('execution_time');
