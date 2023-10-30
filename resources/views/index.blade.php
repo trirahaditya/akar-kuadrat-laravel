@@ -9,7 +9,10 @@
 </head> 
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">Akar Kuadrat Bilangan</h1>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Akar Kuadrat Bilangan</h1>
+            <a href="{{ route('logout') }}" class="btn btn-danger"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </div>
 
         @if(session('error'))
         <div class="alert alert-danger mt-3">
