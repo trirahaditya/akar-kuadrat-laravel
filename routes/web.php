@@ -19,5 +19,6 @@ Route::get('/sorted_history', [SquareRootController::class, 'sortedHistory'])->n
 Route::get('/refresh-rekapitulasi', 'SquareRootController@refreshRekapitulasi')->name('square_root.refreshRekapitulasi');
 
 Route::get('/statistics', [SquareRootController::class, 'statistics'])->name('square_root.statistics');
+Route::get('/refresh-statistik', 'SquareRootController@refreshStatistik')->name('square_root.refreshStatistik');
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -34,9 +34,10 @@
             <h1>Akar Kuadrat Bilangan</h1>
         </div>
 
-        <button type="button" class="btn btn-primary" onclick="refreshRekapitulasi()">
+        <!-- Tombol Refresh -->
+        <button type="button" class="btn btn-primary" id="refreshStatistik">
             <i class="bi bi-arrow-clockwise"></i> Refresh
-        </button>
+        </button>   
         
         <h2 class="mt-4">Statistik Data</h2>
         <table class="table mt-4">
@@ -57,6 +58,46 @@
         </table>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>  
+    <!-- Container Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="refreshToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Akar Kuadrat</strong>
+                <small>Baru saja</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Tutup"></button>
+            </div>
+            <div class="toast-body">
+                Statistik berhasil diperbarui.
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('refreshStatistik').addEventListener('click', function () {
+            // Mengirim permintaan AJAX ke rute refreshStatistik
+            fetch('{{ route('square_root.refreshStatistik') }}') // Ganti 'refreshRekapitulasi' dengan 'refreshStatistik'
+                .then(response => response.json())
+                .then(data => {
+                    // Memperbarui statistik data
+                    document.getElementById('fastestTime').textContent = data.fastestTime;
+                    document.getElementById('slowestTime').textContent = data.slowestTime;
+                    document.getElementById('averageTime').textContent = data.averageTime;
+    
+                    // Menampilkan toast
+                    var myToast = new bootstrap.Toast(document.getElementById('refreshToast'));
+                    myToast.show();
+                })
+                .catch(error => {
+                    console.error('Terjadi kesalahan saat memuat data statistik: ', error);
+                });
+        });
+    </script>   
+    <script>
+        document.getElementById('refreshStatistik').addEventListener('click', function () {
+            // Menampilkan toast
+            var myToast = new bootstrap.Toast(document.getElementById('refreshToast'));
+            myToast.show();
+        });
+    </script>
 </body>
 </html>

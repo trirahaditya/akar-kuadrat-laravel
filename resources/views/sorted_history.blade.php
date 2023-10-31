@@ -20,6 +20,7 @@
                 <ul class="list-group">
                     <li class="list-group-item"><a href="{{ route('square_root.index') }}">Dashboard</a></li>
                     <li class="list-group-item"><a href="{{ route('square_root.history') }}">History</a></li>
+                    <li class="list-group-item"><a href="{{ route('square_root.statistics') }}">Statistik Data</a></li>
                     <li class="list-group-item"><a href="{{ route('logout') }}">Logout</a></li> <!-- Tambahkan ini -->
                 </ul>
             </div>

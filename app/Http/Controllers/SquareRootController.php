@@ -109,4 +109,21 @@ class SquareRootController extends Controller
         // Membuat tampilan dan memasukkan data ke dalamnya
         return view('statistics', compact('fastestTime', 'slowestTime', 'averageTime'));
     }
+
+    public function refreshStatistik()
+    {
+        // Mengambil semua data history
+        $history = History::all();
+
+        // Menghitung waktu pemrosesan tercepat, terlama, dan rata-rata
+        $fastestTime = $history->min('execution_time');
+        $slowestTime = $history->max('execution_time');
+        $averageTime = $history->avg('execution_time');
+
+        return response()->json([
+            'fastestTime' => $fastestTime,
+            'slowestTime' => $slowestTime,
+            'averageTime' => $averageTime,
+        ]);
+    }
 }
